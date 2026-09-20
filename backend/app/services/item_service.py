@@ -234,12 +234,17 @@ class ItemService:
     async def update(self, item: ClothingItem, item_data: ItemUpdate) -> ClothingItem:
         update_data = item_data.model_dump(exclude_unset=True)
 
-        if "tags" in update_data and update_data["tags"]:
-            tags = update_data["tags"]
-            if isinstance(tags, dict):
-                update_data["tags"] = {k: v for k, v in tags.items() if v is not None}
-            else:
-                update_data["tags"] = tags.model_dump(exclude_none=True)
+        if "tags" in update_data and update_data["tags"] is not None:
+            incoming = update_data["tags"]
+            if not isinstance(incoming, dict):
+                incoming = incoming.model_dump(exclude_unset=True)
+            merged = dict(item.tags or {})
+            for k, v in incoming.items():
+                if v is None:
+                    merged.pop(k, None)   # explicit null clears a key
+                else:
+                    merged[k] = v
+            update_data["tags"] = merged
 
         for field, value in update_data.items():
             setattr(item, field, value)
