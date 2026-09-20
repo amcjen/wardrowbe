@@ -38,6 +38,9 @@ class ItemTags(BaseModel):
     season: list[str] = Field(default_factory=list)
     formality: str | None = None
     fit: str | None = None
+    size: str | None = Field(None, max_length=32)
+    care_instructions: str | None = None
+    source_url: str | None = None
 
 
 class ItemBase(BaseModel):
